@@ -1,0 +1,153 @@
+{% extends 'students/base.html' %}
+{% block title %}Tableau de bord — GestEtudiant{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0"><i class="bi bi-speedometer2 me-2 text-primary"></i>Tableau de bord</h2>
+        <p class="text-muted mb-0">Vue d'ensemble de la plateforme</p>
+    </div>
+    <a href="{% url 'creer_etudiant' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus-fill me-2"></i>Nouvel étudiant
+    </a>
+</div>
+
+<!-- Stats cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card border-primary h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small text-uppercase fw-bold">Total étudiants</p>
+                        <h2 class="fw-bold text-primary mb-0">{{ total_etudiants }}</h2>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                        <i class="bi bi-people-fill text-primary fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-success h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small text-uppercase fw-bold">Étudiants actifs</p>
+                        <h2 class="fw-bold text-success mb-0">{{ total_actifs }}</h2>
+                    </div>
+                    <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                        <i class="bi bi-person-check-fill text-success fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-warning h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small text-uppercase fw-bold">Filières</p>
+                        <h2 class="fw-bold text-warning mb-0">{{ total_filieres }}</h2>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                        <i class="bi bi-diagram-3-fill text-warning fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-info h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small text-uppercase fw-bold">Taux d'activité</p>
+                        <h2 class="fw-bold text-info mb-0">
+                            {% if total_etudiants %}{{ total_actifs|floatformat:0 }}%{% else %}—{% endif %}
+                        </h2>
+                    </div>
+                    <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                        <i class="bi bi-bar-chart-fill text-info fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent students -->
+    <div class="col-md-7">
+        <div class="card h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2"></i>Derniers inscrits</h6>
+                <a href="{% url 'liste_etudiants' %}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Étudiant</th>
+                                <th>Filière</th>
+                                <th>Statut</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for e in etudiants_recents %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">{{ e.nom_complet }}</div>
+                                    <small class="text-muted">{{ e.cne }}</small>
+                                </td>
+                                <td><span class="badge bg-secondary">{{ e.filiere.code }}</span></td>
+                                <td>
+                                    <span class="badge badge-{{ e.statut }}">{{ e.get_statut_display }}</span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'detail_etudiant' e.pk %}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center text-muted py-3">Aucun étudiant enregistré</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats by filiere -->
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-pie-chart-fill me-2"></i>Répartition par filière</h6>
+            </div>
+            <div class="card-body">
+                {% for f in stats_filiere %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fw-semibold small">{{ f.nom }}</span>
+                        <span class="text-muted small">{{ f.nb }} étudiants</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        {% if total_etudiants %}
+                        <div class="progress-bar bg-primary" style="width: {% widthratio f.nb total_etudiants 100 %}%"></div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted">Aucune filière configurée.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

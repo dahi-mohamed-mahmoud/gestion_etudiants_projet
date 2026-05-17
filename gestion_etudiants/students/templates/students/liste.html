@@ -1,0 +1,82 @@
+{% extends 'students/base.html' %}
+{% block title %}Liste des étudiants{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0"><i class="bi bi-people-fill me-2 text-primary"></i>Étudiants</h2>
+        <p class="text-muted mb-0">{{ etudiants.count }} étudiant(s) trouvé(s)</p>
+    </div>
+    <a href="{% url 'creer_etudiant' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus-fill me-2"></i>Nouvel étudiant
+    </a>
+</div>
+
+<!-- Search form -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">{{ form.query.label_tag }} {{ form.query }}</div>
+            <div class="col-md-3">{{ form.filiere.label_tag }} {{ form.filiere }}</div>
+            <div class="col-md-2">{{ form.statut.label_tag }} {{ form.statut }}</div>
+            <div class="col-md-1">{{ form.niveau.label_tag }} {{ form.niveau }}</div>
+            <div class="col-md-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search me-1"></i>Filtrer</button>
+                <a href="{% url 'liste_etudiants' %}" class="btn btn-outline-secondary"><i class="bi bi-x"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>CNE</th>
+                        <th>Nom complet</th>
+                        <th>Email</th>
+                        <th>Filière</th>
+                        <th>Niveau</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in etudiants %}
+                    <tr>
+                        <td><code>{{ e.cne }}</code></td>
+                        <td class="fw-semibold">{{ e.nom_complet }}</td>
+                        <td class="text-muted small">{{ e.email }}</td>
+                        <td><span class="badge bg-primary">{{ e.filiere.code }}</span></td>
+                        <td><span class="badge bg-secondary">Niveau {{ e.niveau }}</span></td>
+                        <td>
+                            <span class="badge
+                                {% if e.statut == 'actif' %}bg-success
+                                {% elif e.statut == 'suspendu' %}bg-warning text-dark
+                                {% elif e.statut == 'diplome' %}bg-info
+                                {% else %}bg-danger{% endif %}">
+                                {{ e.get_statut_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'detail_etudiant' e.pk %}" class="btn btn-outline-primary" title="Voir"><i class="bi bi-eye"></i></a>
+                                <a href="{% url 'modifier_etudiant' e.pk %}" class="btn btn-outline-warning" title="Modifier"><i class="bi bi-pencil"></i></a>
+                                <a href="{% url 'supprimer_etudiant' e.pk %}" class="btn btn-outline-danger" title="Supprimer"><i class="bi bi-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-center text-muted py-5">
+                        <i class="bi bi-search fs-1 d-block mb-2 opacity-25"></i>
+                        Aucun étudiant trouvé.
+                    </td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
