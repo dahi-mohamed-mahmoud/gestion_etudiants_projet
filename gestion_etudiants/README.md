@@ -1,6 +1,6 @@
 # 🎓 GestEtudiant — Plateforme de Gestion des Étudiants
 
-![CI/CD](https://github.com/VOTRE_USERNAME/gestion-etudiants/actions/workflows/ci-cd.yml/badge.svg)
+![CI/CD](https://github.com/dahi-mohamed-mahmoud/gestion-etudiants/actions/workflows/ci-cd.yml/badge.svg)
 ![Docker](https://img.shields.io/docker/pulls/VOTRE_USERNAME/gestion-etudiants)
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![Django](https://img.shields.io/badge/Django-5.0-green)
