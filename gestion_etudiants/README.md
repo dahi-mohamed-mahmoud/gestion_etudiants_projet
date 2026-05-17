@@ -169,8 +169,8 @@ gestion_etudiants/
 
 ## 👥 Auteurs
 
-- **Étudiant 1** — [GitHub](https://github.com/etudiant1)
-- **Étudiant 2** — [GitHub](https://github.com/etudiant2)
+- **Cheikh ahmed Mohamed abdallahi** — [GitHub](https://github.com/Mohamed-Abdallahi)
+- **Mohamed mahmoud Dahi** — [GitHub](https://github.com/dahi-mohamed-mahmoud)
 
 ---
 
