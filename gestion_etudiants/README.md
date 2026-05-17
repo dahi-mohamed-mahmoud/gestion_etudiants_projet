@@ -175,3 +175,5 @@ gestion_etudiants/
 ---
 
 *Projet réalisé dans le cadre du module DevOps — 2025-2026*
+
+**fin**
