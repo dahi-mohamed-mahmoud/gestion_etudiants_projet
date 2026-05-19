@@ -38,12 +38,10 @@ RUN python manage.py collectstatic --noinput
 
 # Utilisateur non-root pour la sécurité
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+RUN chown -R appuser:appgroup /app
 USER appuser
 
 EXPOSE 8000
 
-# Démarrage avec gunicorn
-CMD ["gunicorn", "gestion_etudiants.wsgi:application", \
-     "--bind", "0.0.0.0:8000", \
-     "--workers", "3", \
-     "--timeout", "60"]
+# Démarrage autonome: migrations puis Gunicorn
+CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn gestion_etudiants.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60"]
