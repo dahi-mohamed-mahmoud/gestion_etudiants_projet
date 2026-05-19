@@ -32,7 +32,8 @@ services:
     volumes:
       - media_data:/app/media
     command: >
-      sh -c "python manage.py migrate --noinput &&
+      sh -c "until getent hosts ${POSTGRES_HOST:-db}; do echo 'Waiting for DB DNS...'; sleep 1; done &&
+             python manage.py migrate --noinput &&
              python manage.py collectstatic --noinput &&
              gunicorn gestion_etudiants.wsgi:application --bind 0.0.0.0:8000 --workers 3"
 
