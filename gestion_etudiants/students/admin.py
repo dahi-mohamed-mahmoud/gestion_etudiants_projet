@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Etudiant, Filiere, Matiere, Note
+from .models import Etudiant, Filiere, Matiere, Note, Inscription
 
 
 @admin.register(Filiere)
@@ -24,3 +24,10 @@ class MatiereAdmin(admin.ModelAdmin):
 class NoteAdmin(admin.ModelAdmin):
     list_display = ['etudiant', 'matiere', 'note', 'session', 'annee_academique']
     list_filter = ['session', 'annee_academique', 'matiere__filiere']
+
+
+@admin.register(Inscription)
+class InscriptionAdmin(admin.ModelAdmin):
+    list_display = ['etudiant', 'filiere', 'niveau', 'annee_academique', 'statut']
+    list_filter = ['filiere', 'niveau', 'annee_academique', 'statut']
+    search_fields = ['etudiant__cne', 'etudiant__nom', 'etudiant__prenom']

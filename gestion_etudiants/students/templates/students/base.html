@@ -39,13 +39,25 @@
                 <a href="{% url 'creer_etudiant' %}" class="nav-link mb-1">
                     <i class="bi bi-person-plus-fill me-2"></i>Nouvel étudiant
                 </a>
+                <a href="{% url 'liste_matieres' %}" class="nav-link mb-1 {% if 'matiere' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-journal-bookmark-fill me-2"></i>Cours
+                </a>
+                <a href="{% url 'liste_examens' %}" class="nav-link mb-1 {% if 'examen' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-clipboard2-check-fill me-2"></i>Examens
+                </a>
+                <a href="{% url 'liste_inscriptions' %}" class="nav-link mb-1 {% if 'inscription' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="bi bi-journal-check me-2"></i>Inscriptions
+                </a>
                 <hr class="border-secondary mx-3">
                 <a href="/admin/" class="nav-link mb-1" target="_blank">
                     <i class="bi bi-gear-fill me-2"></i>Administration
                 </a>
-                <a href="{% url 'logout' %}" class="nav-link text-danger mt-2">
-                    <i class="bi bi-box-arrow-left me-2"></i>Déconnexion
-                </a>
+                <form method="post" action="{% url 'logout' %}" class="mt-2 mx-2">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-link text-danger border-0 bg-transparent w-100 text-start">
+                        <i class="bi bi-box-arrow-left me-2"></i>Déconnexion
+                    </button>
+                </form>
             </nav>
             <div class="p-3 mt-auto" style="position: absolute; bottom: 0; width: 100%;">
                 <small class="text-white-50">

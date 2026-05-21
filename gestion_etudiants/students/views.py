@@ -2,10 +2,11 @@ import csv
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import IntegrityError
 from django.db.models import Q, Avg, Count
 from django.http import HttpResponse
-from .models import Etudiant, Filiere, Matiere, Note
-from .forms import EtudiantForm, NoteForm, RechercheForm
+from .models import Etudiant, Filiere, Matiere, Note, Inscription
+from .forms import EtudiantForm, NoteForm, RechercheForm, MatiereForm, ExamenForm, InscriptionForm
 
 
 @login_required
@@ -136,3 +137,220 @@ def export_releve_csv(request, pk):
         ])
 
     return response
+
+
+@login_required
+def liste_matieres(request):
+    query = request.GET.get('q', '').strip()
+    matieres = Matiere.objects.select_related('filiere').all()
+
+    if query:
+        matieres = matieres.filter(
+            Q(code__icontains=query) | Q(nom__icontains=query) | Q(filiere__nom__icontains=query)
+        )
+
+    return render(request, 'students/courses_list.html', {
+        'matieres': matieres,
+        'query': query,
+    })
+
+
+@login_required
+def creer_matiere(request):
+    if request.method == 'POST':
+        form = MatiereForm(request.POST)
+        if form.is_valid():
+            matiere = form.save()
+            messages.success(request, f"Cours {matiere.code} créé avec succès.")
+            return redirect('liste_matieres')
+    else:
+        form = MatiereForm()
+
+    return render(request, 'students/course_form.html', {
+        'form': form,
+        'titre': 'Nouveau cours',
+    })
+
+
+@login_required
+def modifier_matiere(request, pk):
+    matiere = get_object_or_404(Matiere, pk=pk)
+
+    if request.method == 'POST':
+        form = MatiereForm(request.POST, instance=matiere)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Cours mis à jour avec succès.")
+            return redirect('liste_matieres')
+    else:
+        form = MatiereForm(instance=matiere)
+
+    return render(request, 'students/course_form.html', {
+        'form': form,
+        'titre': f'Modifier le cours {matiere.code}',
+        'matiere': matiere,
+    })
+
+
+@login_required
+def supprimer_matiere(request, pk):
+    matiere = get_object_or_404(Matiere, pk=pk)
+
+    if request.method == 'POST':
+        code = matiere.code
+        matiere.delete()
+        messages.success(request, f"Cours {code} supprimé.")
+        return redirect('liste_matieres')
+
+    return render(request, 'students/course_confirm_delete.html', {'matiere': matiere})
+
+
+@login_required
+def liste_examens(request):
+    query = request.GET.get('q', '').strip()
+    examens = Note.objects.select_related('etudiant', 'matiere', 'etudiant__filiere').order_by('-created_at')
+
+    if query:
+        examens = examens.filter(
+            Q(etudiant__nom__icontains=query)
+            | Q(etudiant__prenom__icontains=query)
+            | Q(etudiant__cne__icontains=query)
+            | Q(matiere__code__icontains=query)
+            | Q(matiere__nom__icontains=query)
+            | Q(annee_academique__icontains=query)
+        )
+
+    return render(request, 'students/exams_list.html', {
+        'examens': examens,
+        'query': query,
+    })
+
+
+@login_required
+def creer_examen(request):
+    if request.method == 'POST':
+        form = ExamenForm(request.POST)
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, "Examen enregistré avec succès.")
+                return redirect('liste_examens')
+            except Exception:
+                form.add_error(None, "Un examen existe déjà pour cet étudiant, cette matière, cette session et cette année.")
+    else:
+        form = ExamenForm()
+
+    return render(request, 'students/exam_form.html', {
+        'form': form,
+        'titre': 'Nouvel examen',
+    })
+
+
+@login_required
+def modifier_examen(request, pk):
+    examen = get_object_or_404(Note, pk=pk)
+
+    if request.method == 'POST':
+        form = ExamenForm(request.POST, instance=examen)
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, "Examen mis à jour avec succès.")
+                return redirect('liste_examens')
+            except Exception:
+                form.add_error(None, "Conflit de duplication détecté pour cet examen.")
+    else:
+        form = ExamenForm(instance=examen)
+
+    return render(request, 'students/exam_form.html', {
+        'form': form,
+        'titre': 'Modifier examen',
+        'examen': examen,
+    })
+
+
+@login_required
+def supprimer_examen(request, pk):
+    examen = get_object_or_404(Note, pk=pk)
+
+    if request.method == 'POST':
+        examen.delete()
+        messages.success(request, "Examen supprimé.")
+        return redirect('liste_examens')
+
+    return render(request, 'students/exam_confirm_delete.html', {'examen': examen})
+
+
+@login_required
+def liste_inscriptions(request):
+    query = request.GET.get('q', '').strip()
+    inscriptions = Inscription.objects.select_related('etudiant', 'filiere').all()
+
+    if query:
+        inscriptions = inscriptions.filter(
+            Q(etudiant__nom__icontains=query)
+            | Q(etudiant__prenom__icontains=query)
+            | Q(etudiant__cne__icontains=query)
+            | Q(filiere__nom__icontains=query)
+            | Q(annee_academique__icontains=query)
+        )
+
+    return render(request, 'students/inscriptions_list.html', {
+        'inscriptions': inscriptions,
+        'query': query,
+    })
+
+
+@login_required
+def creer_inscription(request):
+    if request.method == 'POST':
+        form = InscriptionForm(request.POST)
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, "Inscription créée avec succès.")
+                return redirect('liste_inscriptions')
+            except IntegrityError:
+                form.add_error(None, "Cet étudiant est déjà inscrit pour cette année académique.")
+    else:
+        form = InscriptionForm()
+
+    return render(request, 'students/inscription_form.html', {
+        'form': form,
+        'titre': 'Nouvelle inscription',
+    })
+
+
+@login_required
+def modifier_inscription(request, pk):
+    inscription = get_object_or_404(Inscription, pk=pk)
+
+    if request.method == 'POST':
+        form = InscriptionForm(request.POST, instance=inscription)
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, "Inscription mise à jour avec succès.")
+                return redirect('liste_inscriptions')
+            except IntegrityError:
+                form.add_error(None, "Conflit de duplication pour cette année académique.")
+    else:
+        form = InscriptionForm(instance=inscription)
+
+    return render(request, 'students/inscription_form.html', {
+        'form': form,
+        'titre': 'Modifier inscription',
+        'inscription': inscription,
+    })
+
+
+@login_required
+def supprimer_inscription(request, pk):
+    inscription = get_object_or_404(Inscription, pk=pk)
+
+    if request.method == 'POST':
+        inscription.delete()
+        messages.success(request, "Inscription supprimée.")
+        return redirect('liste_inscriptions')
+
+    return render(request, 'students/inscription_confirm_delete.html', {'inscription': inscription})

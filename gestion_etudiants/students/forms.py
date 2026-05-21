@@ -1,5 +1,5 @@
 from django import forms
-from .models import Etudiant, Note, Filiere
+from .models import Etudiant, Note, Filiere, Matiere, Inscription
 
 
 class EtudiantForm(forms.ModelForm):
@@ -30,6 +30,49 @@ class NoteForm(forms.ModelForm):
         fields = ['matiere', 'note', 'session', 'annee_academique']
         widgets = {
             'annee_academique': forms.TextInput(attrs={'placeholder': 'Ex: 2024-2025'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+
+
+class MatiereForm(forms.ModelForm):
+    class Meta:
+        model = Matiere
+        fields = ['code', 'nom', 'filiere', 'niveau', 'coefficient']
+        widgets = {
+            'code': forms.TextInput(attrs={'placeholder': 'Ex: INFO101'}),
+            'nom': forms.TextInput(attrs={'placeholder': 'Ex: Algorithmique'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+
+
+class ExamenForm(forms.ModelForm):
+    class Meta:
+        model = Note
+        fields = ['etudiant', 'matiere', 'note', 'session', 'annee_academique']
+        widgets = {
+            'annee_academique': forms.TextInput(attrs={'placeholder': 'Ex: 2025-2026'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+
+
+class InscriptionForm(forms.ModelForm):
+    class Meta:
+        model = Inscription
+        fields = ['etudiant', 'filiere', 'niveau', 'annee_academique', 'statut']
+        widgets = {
+            'annee_academique': forms.TextInput(attrs={'placeholder': 'Ex: 2025-2026'}),
         }
 
     def __init__(self, *args, **kwargs):

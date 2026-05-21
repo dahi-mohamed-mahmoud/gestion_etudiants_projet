@@ -1,0 +1,66 @@
+{% extends 'students/base.html' %}
+{% block title %}Examens{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0"><i class="bi bi-clipboard2-check-fill me-2 text-primary"></i>Examens</h2>
+    <a href="{% url 'creer_examen' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Nouvel examen
+    </a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2">
+            <div class="col-md-10">
+                <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="Rechercher par étudiant, matière ou année">
+            </div>
+            <div class="col-md-2 d-grid">
+                <button class="btn btn-outline-primary" type="submit">
+                    <i class="bi bi-search me-1"></i>Rechercher
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Étudiant</th>
+                    <th>Matière</th>
+                    <th>Note</th>
+                    <th>Session</th>
+                    <th>Année</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for examen in examens %}
+                    <tr>
+                        <td>{{ examen.etudiant.nom_complet }} ({{ examen.etudiant.cne }})</td>
+                        <td>{{ examen.matiere.code }} - {{ examen.matiere.nom }}</td>
+                        <td><span class="badge {% if examen.note >= 10 %}bg-success{% else %}bg-danger{% endif %}">{{ examen.note }}/20</span></td>
+                        <td>{{ examen.get_session_display }}</td>
+                        <td>{{ examen.annee_academique }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'modifier_examen' examen.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a href="{% url 'supprimer_examen' examen.pk %}" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">Aucun examen trouvé.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

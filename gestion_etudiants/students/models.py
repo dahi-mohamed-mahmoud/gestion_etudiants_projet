@@ -64,6 +64,30 @@ class Etudiant(models.Model):
         return round(sum(n.note for n in notes) / len(notes), 2)
 
 
+class Inscription(models.Model):
+    STATUT_CHOICES = [
+        ('active', 'Active'),
+        ('suspendue', 'Suspendue'),
+        ('annulee', 'Annulée'),
+    ]
+
+    etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name='inscriptions')
+    filiere = models.ForeignKey(Filiere, on_delete=models.PROTECT, related_name='inscriptions')
+    niveau = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    annee_academique = models.CharField(max_length=9, help_text="Ex: 2025-2026")
+    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='active')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Inscription"
+        verbose_name_plural = "Inscriptions"
+        ordering = ['-annee_academique', '-created_at']
+        unique_together = ['etudiant', 'annee_academique']
+
+    def __str__(self):
+        return f"{self.etudiant.nom_complet} - {self.annee_academique}"
+
+
 class Matiere(models.Model):
     nom = models.CharField(max_length=100)
     code = models.CharField(max_length=20, unique=True)

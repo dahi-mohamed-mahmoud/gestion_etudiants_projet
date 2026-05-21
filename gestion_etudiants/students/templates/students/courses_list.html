@@ -1,0 +1,66 @@
+{% extends 'students/base.html' %}
+{% block title %}Cours{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0"><i class="bi bi-journal-bookmark-fill me-2 text-primary"></i>Cours</h2>
+    <a href="{% url 'creer_matiere' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Nouveau cours
+    </a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2">
+            <div class="col-md-10">
+                <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="Rechercher par code, nom ou filière">
+            </div>
+            <div class="col-md-2 d-grid">
+                <button class="btn btn-outline-primary" type="submit">
+                    <i class="bi bi-search me-1"></i>Rechercher
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Code</th>
+                    <th>Nom</th>
+                    <th>Filière</th>
+                    <th>Niveau</th>
+                    <th>Coefficient</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for matiere in matieres %}
+                    <tr>
+                        <td><span class="badge bg-dark">{{ matiere.code }}</span></td>
+                        <td>{{ matiere.nom }}</td>
+                        <td>{{ matiere.filiere.nom }}</td>
+                        <td>{{ matiere.niveau }}</td>
+                        <td>{{ matiere.coefficient }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'modifier_matiere' matiere.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a href="{% url 'supprimer_matiere' matiere.pk %}" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">Aucun cours trouvé.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
